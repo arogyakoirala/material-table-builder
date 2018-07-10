@@ -1,0 +1,42 @@
+{
+  "name": "material-table-builder",
+  "version": "1.0.0",
+  "description": "A simple utitlity to collect data for tables and bar charts. This tool was developed specifically for KLL's OLGDS project, where municipality officers wanted a way to simply input data for tables and/or graphs to be displayed on their website.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --mode development"
+  },
+  "author": "Arogya Koirala",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.5",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "copy-webpack-plugin": "^4.5.2",
+    "css-loader": "^1.0.0",
+    "eslint-config-airbnb": "^17.0.0",
+    "eslint-loader": "^2.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jsx-a11y": "^6.1.0",
+    "eslint-plugin-react": "^7.10.0",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "html-webpack-plugin": "^3.2.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "style-loader": "^0.21.0",
+    "webpack": "^4.15.1",
+    "webpack-cli": "^3.0.8",
+    "webpack-config-utils": "^2.3.0",
+    "webpack-dev-server": "^3.1.4"
+  },
+  "dependencies": {
+    "c3": "^0.6.3",
+    "lodash.clonedeep": "^4.5.0",
+    "material-ui": "^0.20.1",
+    "react-data-grid": "^4.0.7"
+  }
+}
