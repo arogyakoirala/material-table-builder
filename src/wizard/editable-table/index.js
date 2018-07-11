@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'; //eslint-disable-line
 import ReactDataGrid from 'react-data-grid';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
@@ -6,20 +6,6 @@ import TextField from 'material-ui/TextField';
 import SvgIcon from 'material-ui/SvgIcon';
 import { generateRows, generateColumns } from './utils';
 import './styles.css'; //eslint-disable-line
-
-// import BarChart from '../charts/bar';
-//
-// const rowsDummy = [
-//   {
-//     Column1: '-',
-//     Column2: '-',
-//   },
-//   {
-//     Column1: '-',
-//     Column2: '-',
-//   },
-// ];
-
 
 const AddColumnIcon = props => (
   <SvgIcon
@@ -46,7 +32,7 @@ const AddRowIcon = props => (
   </SvgIcon>
 );
 
-class Home extends Component {
+class EditableTable extends Component {
   constructor(props) {
     super(props);
 
@@ -57,7 +43,7 @@ class Home extends Component {
       updating: false,
       newColumnName: '',
       tableHeader: props.title,
-      tableFootnote: props.footnote,
+      tableFootNote: props.footnote,
     };
 
     this.getRow = this.getRow.bind(this);
@@ -73,7 +59,8 @@ class Home extends Component {
   }
 
   getRow(i) {
-    return this.state.rows[i];
+    const { rows } = this.state;
+    return rows[i];
   }
 
   componentDidMount() {
@@ -82,32 +69,30 @@ class Home extends Component {
 
   onUpdateData({ fromRow, fromRowData, updated }) { //eslint-disable-line
 
+    const { rows } = this.state;
+    const { onChangeData } = this.props;
+
     const newObject = { ...fromRowData, ...updated };
-    const rowsCopy = this.state.rows;
+    const rowsCopy = rows;
     rowsCopy[fromRow] = newObject;
-    let array = []
+    let array = [];
     if (fromRow === 0) {
       const oldColumnName = Object.keys(updated)[0];
       const newColumnName = updated[Object.keys(updated)[0]];
 
-      const oldKeysCopy = Object.keys(rowsCopy[0])
-
-
-      // const array = [];
-
-      rowsCopy.forEach((item)=>{
-        const obj = {}
-        Object.keys(item).forEach((ita)=> {
+      rowsCopy.forEach((item) => {
+        const obj = {};
+        Object.keys(item).forEach((ita) => {
           if (ita !== oldColumnName) {
             obj[ita] = item[ita];
           } else {
-            obj[newColumnName] = item[ita]
+            obj[newColumnName] = item[ita];
           }
-        })
-        array.push(obj)
-      })
+        });
+        array.push(obj);
+      });
     } else {
-      array = rowsCopy
+      array = rowsCopy;
     }
 
     // console.log('prposedUpdate', [...rowsCopy]);
@@ -118,17 +103,20 @@ class Home extends Component {
       // console.log('newRows', rowsCopy);
     });
 
-    this.props.onChangeData(rowsCopy.splice(1, rowsCopy.length));
+    onChangeData(rowsCopy.splice(1, rowsCopy.length));
   }
 
   addRow() {
+    const { columns, rows } = this.state;
+    const { onChangeData } = this.props;
+
     this.setState({
       updating: true,
     });
 
     const newRow = {};
-    const oldRows = this.state.rows;
-    this.state.columns.forEach((item) => {
+    const oldRows = rows;
+    columns.forEach((item) => {
       newRow[item.key] = '';
     });
 
@@ -141,19 +129,22 @@ class Home extends Component {
       this.setState({
         updating: false,
         rows: oldRows,
-      }, this.props.onChangeData(oldRows));
+      }, onChangeData(oldRows));
     }, 100);
   }
 
   addColumn(newColumnName) {
+    const { columns, rows } = this.state;
+    const { onChangeData } = this.props;
+
     this.setState({
       updating: true,
     });
 
     // const newColumnName = `newrow${Math.random().toFixed(3)}`;
 
-    const currentColumns = this.state.columns;
-    const currentRows = this.state.rows;
+    const currentColumns = columns;
+    const currentRows = rows;
 
     currentColumns.push({ key: newColumnName, name: newColumnName, editable: true });
 
@@ -169,7 +160,7 @@ class Home extends Component {
         updating: false,
         columns: currentColumns,
         rows: currentRows,
-      }, this.props.onChangeData(currentRows));
+      }, onChangeData(currentRows));
     }, 100);
   }
 
@@ -187,15 +178,18 @@ class Home extends Component {
   }
 
   onChangeTableHeader(e, newValue) {
+    const { onChangeTitle } = this.props;
     this.setState({
       tableHeader: newValue,
-    }, this.props.onChangeTableName(newValue));
+    }, onChangeTitle(newValue));
   }
 
   onChangeTableFootnote(e, newValue) {
+    const { onChangeFootnote } = this.props;
+
     this.setState({
       tableFootNote: newValue,
-    }, this.props.onChangeTableFootnote(newValue));
+    }, onChangeFootnote(newValue));
   }
 
   onOpenDialog() {
@@ -212,7 +206,9 @@ class Home extends Component {
 
 
   render() {
-    const { rows, columns } = this.state;
+    const {
+      rows, columns, newColumnName, tableHeader, updating, isNewColumnDialogOpen, tableFootNote,
+    } = this.state;
 
     const actions = [
       <FlatButton
@@ -224,54 +220,72 @@ class Home extends Component {
         label="Submit"
         primary
         keyboardFocused
-        onClick={() => { this.onSave(this.state.newColumnName); }}
+        onClick={() => { this.onSave(newColumnName); }}
       />,
     ];
 
     return (
       <div className="editable-table m-3">
-        <TextField fullWidth name="tableTitle" floatingLabelText="Enter table title" value={this.state.tableHeader} onChange={this.onChangeTableHeader} />
+        <TextField fullWidth name="tableTitle" floatingLabelText="Enter table title" value={tableHeader} onChange={this.onChangeTableHeader} />
         <br />
         <br />
 
-        <small style={{ color: 'rgba(0,0,0,0.3)' }}>Enter table data</small>
+        <small style={{ color: 'rgba(0,0,0,0.3)' }}>
+Enter table data
+        </small>
         <FlatButton icon={<AddColumnIcon />} primary className="float-right mr-1 " label="Add Column" onClick={this.onOpenDialog} />
         <FlatButton icon={<AddRowIcon />} primary className="float-right mr-1 " label="Add Row" onClick={this.addRow} />
 
-        {!this.state.updating &&
+        {!updating
 
+          && (
           <div>
-          <ReactDataGrid
-            columns={columns}
-            enableCellSelect
-            rowGetter={this.getRow}
-            rowsCount={rows.length}
-            minHeight={(35 * rows.length) + 15}
-            onGridRowsUpdated={this.onUpdateData}
-          />
+            <ReactDataGrid
+              columns={columns}
+              enableCellSelect
+              rowGetter={this.getRow}
+              rowsCount={rows.length}
+              minHeight={(35 * rows.length) + 25}
+              onGridRowsUpdated={this.onUpdateData}
+            />
           </div>
+          )
         }
 
-        {this.state.updating && <div>Updating</div>}
+        { updating && (
+        <div>
+          Updating
+        </div>
+        )}
 
 
         <Dialog
           title="Add new column"
           actions={actions}
           modal={false}
-          open={this.state.isNewColumnDialogOpen}
+          open={isNewColumnDialogOpen}
           onRequestClose={this.onCloseDialog}
         >
-          <TextField fullWidth floatingLabelText="Enter the name of the new column" onChange={this.onChangeColumnName} value={this.state.newColumnName} />
+          <TextField
+            fullWidth
+            floatingLabelText="Enter the name of the new column"
+            onChange={this.onChangeColumnName}
+            value={newColumnName}
+          />
         </Dialog>
 
-        <TextField fullWidth name="tableFootNote" floatingLabelText="Enter footnotes (if any)" value={this.state.tableFootnote} onChange={this.onChangeTableFootnote} />
+        <TextField
+          fullWidth
+          name="tableFootNote"
+          floatingLabelText="Enter footnotes (if any)"
+          value={tableFootNote}
+          onChange={this.onChangeTableFootnote}
+        />
 
-        {/* <FlatButton className="mr-3 mb-3" primary label="Save Changes" onClick={this.onSave} /> */}
       </div>
     );
   }
 }
 
 
-export default Home;
+export default EditableTable;

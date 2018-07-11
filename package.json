@@ -5,11 +5,17 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --mode development"
+    "start": "webpack-dev-server --mode development",
+    "transpile": "babel src -d dist --copy-files",
+    "prepublishOnly": "npm run transpile",
+    "build": "webpack --mode production",
+    "deploy": "gh-pages -d examples/dist",
+    "publish-demo": "npm run build && npm run deploy"
   },
   "author": "Arogya Koirala",
   "license": "ISC",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.5",
     "babel-loader": "^7.1.5",
@@ -18,25 +24,29 @@
     "babel-preset-stage-2": "^6.24.1",
     "copy-webpack-plugin": "^4.5.2",
     "css-loader": "^1.0.0",
+    "eslint": "^5.1.0",
     "eslint-config-airbnb": "^17.0.0",
     "eslint-loader": "^2.0.0",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-jsx-a11y": "^6.1.0",
     "eslint-plugin-react": "^7.10.0",
     "extract-text-webpack-plugin": "^3.0.2",
+    "gh-pages": "^1.2.0",
     "html-webpack-plugin": "^3.2.0",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
     "style-loader": "^0.21.0",
     "webpack": "^4.15.1",
     "webpack-cli": "^3.0.8",
     "webpack-config-utils": "^2.3.0",
     "webpack-dev-server": "^3.1.4"
   },
+  "peerDependencies": {
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1"
+  },
   "dependencies": {
     "c3": "^0.6.3",
-    "lodash.clonedeep": "^4.5.0",
     "material-ui": "^0.20.1",
+    "lodash.clonedeep": "^4.5.0",
     "react-data-grid": "^4.0.7"
   }
 }

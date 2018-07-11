@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'; //eslint-disable-line
 import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
@@ -35,29 +35,38 @@ class SelectChartType extends Component {
   }
 
   componentDidMount() {
-    this.getColumnsByType(this.props.data);
+    const { data } = this.props;
+
+    this.getColumnsByType(data);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const isThereChange = !arraysEqual(Object.keys(this.props.data[0]), Object.keys(prevProps.data[0]));
+    const { data } = this.props;
+    const isThereChange = !arraysEqual(Object.keys(data[0]), Object.keys(prevProps.data[0]));
     // console.log('istherechange', isThereChange);
     if (isThereChange) {
-      this.getColumnsByType(this.props.data);
+      this.getColumnsByType(data);
     }
   }
 
 
   onChartParamChange(type, value) {
+    const {
+      categoricalColumns, numericColumns, categoricalColumnValue, numericColumnValue,
+    } = this.state;
+
+    const { onChangeChartParams } = this.props;
+
     switch (type) {
       case 'categorical':
         this.setState({
-          categoricalColumnValue: this.state.categoricalColumns[value],
-        }, this.props.onChartParamChange({ params: { categorical: this.state.categoricalColumns[value], numeric: this.state.numericColumnValue } }));
+          categoricalColumnValue: categoricalColumns[value],
+        }, onChangeChartParams({ params: { categorical: categoricalColumns[value], numeric: numericColumnValue } }));
         break;
       case 'numeric':
         this.setState({
-          numericColumnValue: this.state.numericColumns[value],
-        }, this.props.onChartParamChange({ params: { categorical: this.state.categoricalColumnValue, numeric: this.state.numericColumns[value] } }));
+          numericColumnValue: numericColumns[value],
+        }, onChangeChartParams({ params: { categorical: categoricalColumnValue, numeric: numericColumns[value] } }));
         break;
       default:
         break;
@@ -96,8 +105,6 @@ class SelectChartType extends Component {
 
 
     // console.log('numericColumns', numericColumns);
-
-
     if (numericColumns.length > 0) {
       return false;
     }
@@ -105,6 +112,8 @@ class SelectChartType extends Component {
   }
 
   getColumnsByType(data) {
+    const { onChangeChartParams } = this.props;
+
     const keys = Object.keys(data[0]);
     // console.log(keys);
 
@@ -140,20 +149,27 @@ class SelectChartType extends Component {
       categoricalColumnValue: categoricalColumns[0],
     });
 
-    this.props.onChartParamChange({ params: { categorical: categoricalColumns[0], numeric: numericColumns[0] } });
+    onChangeChartParams({ params: { categorical: categoricalColumns[0], numeric: numericColumns[0] } });
   }
 
   onSelectionChange(e, v) {
+    const { onChangeChartType } = this.props;
     // console.log(v);
     this.setState({
       selectedChartType: v,
-    }, this.props.onChange(v));
+    }, onChangeChartType(v));
   }
 
   render() {
+    const {
+      selectedChartType, categoricalColumns, categoricalColumnValue, numericColumns, numericColumnValue,
+    } = this.state;
+    const { data } = this.props;
+
     return (
       <div>
-        <RadioButtonGroup onChange={this.onSelectionChange} name="shipSpeed" defaultSelected={this.state.selectedChartType}>
+
+        <RadioButtonGroup onChange={this.onSelectionChange} name="shipSpeed" defaultSelected={selectedChartType}>
           <RadioButton
             value="table"
             label="Display as a table"
@@ -161,52 +177,54 @@ class SelectChartType extends Component {
           />
           <RadioButton
             value="chart"
-            disabled={this.checkForDisabled(this.props.data)}
-            label={this.checkForDisabled(this.props.data) ? 'Display as a bar chart (disabled; make sure the table contains at least one column with only numeric values)' : 'Display as a bar chart'}
+            disabled={this.checkForDisabled(data)}
+            label={this.checkForDisabled(data) ? 'Display as a bar chart (disabled; make sure the table contains at least one column with only numeric values)' : 'Display as a bar chart'}
             style={styles.radioButton}
           />
-
         </RadioButtonGroup>
 
-        {this.state.selectedChartType === 'chart' &&
+        {selectedChartType === 'chart'
+        && (
         <div style={{ marginLeft: '40px', backgroundColor: '#f2f2f2', padding: '10px' }}>
-          <p><b>Specify chart parameters</b></p>
+          <p>
+            <b>
+              Specify chart parameters
+            </b>
+          </p>
           <div style={{ backgroundColor: '#fff', padding: '10px' }}>
-            <div className="row" >
-
+            <div className="row">
               <div className="col-6">
                 <SelectField
                   onChange={(e, nv) => { this.onChartParamChange('categorical', nv); }}
                   fullWidth
-                  value={this.state.categoricalColumnValue}
+                  value={categoricalColumnValue}
                   floatingLabelText="Select X-axis (categorical axis)"
                 >
-                  { this.state.categoricalColumns.map((item) => {
+                  { categoricalColumns.map((item) => {
                     return <MenuItem key={Math.random()} primaryText={item} value={item} />;
                   })
                 }
                 </SelectField>
-                <img style={{ border: '1px solid #ccc', maxHeight: '200px' }} src="https://www.dl.dropboxusercontent.com/s/w68lfb4ca5pwtqb/bar-03.png" alt="tets" className="img-fluid" />
               </div>
               <div className="col-6">
-
                 <SelectField
                   onChange={(e, nv) => { this.onChartParamChange('numeric', nv); }}
                   fullWidth
-                  value={this.state.numericColumnValue}
+                  value={numericColumnValue}
                   floatingLabelText="Select Y-axis (numeric axis)"
                 >
-                  { this.state.numericColumns.map((item) => {
-              return <MenuItem key={Math.random()} primaryText={item} value={item} />;
-            })
-          }
+                  {
+                    numericColumns.map((item) => {
+                      return <MenuItem key={Math.random()} primaryText={item} value={item} />;
+                    })
+                  }
                 </SelectField>
-                <img style={{ border: '1px solid #ccc', maxHeight: '200px' }} src="https://www.dl.dropboxusercontent.com/s/v80bapqrjyhih8n/bar-02.png" alt="tets" className="img-fluid" />
               </div>
             </div>
           </div>
 
         </div>
+        )
       }
       </div>
     );

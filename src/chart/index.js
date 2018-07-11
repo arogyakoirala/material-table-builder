@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'; //eslint-disable-line
 import c3 from 'c3';
 // import numeral from 'numeral';
 // import { sumBy } from 'lodash';
@@ -8,8 +8,6 @@ import './styles.css';
 
 
 const getChartReadyData = (params, data) => {
-
-  console.log(params)
   const x = params.categorical;
   const y = params.numeric;
 
@@ -34,9 +32,9 @@ class Chart extends Component {
   }
 
   componentDidMount() {
-    console.log('didmountchrt', this.props)
+    const { params, data } = this.props;
     // console.log('heresmydata',/ this.props.data);
-    getChartReadyData(this.props.params, this.props.data);
+    getChartReadyData(params, data);
     this.updateChart('en');
   }
 
@@ -47,10 +45,12 @@ class Chart extends Component {
 
 
   updateChart(localeValue) { //eslint-disable-line
+
+    const { data, params } = this.props;
     // console.log('Updating Chart..');
-    if (this.props.data) {
+    if (data) {
       const labels = [];
-      getChartReadyData(this.props.params, this.props.data).forEach((item, i) => {
+      getChartReadyData(params, data).forEach((item, i) => {
         // console.log('labelitem', item);
         const obj = {};
         obj.value = i;
@@ -61,8 +61,6 @@ class Chart extends Component {
         labels.push(obj);
       });
 
-      const { data } = this.props;
-
       data.forEach((item) => {
         item.prop = (item.prop*100).toFixed(1); //eslint-disable-line
       });
@@ -72,7 +70,7 @@ class Chart extends Component {
       this.chart = c3.generate({
         bindto: this.node,
         data: {
-          json: getChartReadyData(this.props.params, this.props.data),
+          json: getChartReadyData(params, data),
           colors: {
             prop: '#842e1f',
           },
@@ -107,7 +105,7 @@ class Chart extends Component {
             type: 'category',
           },
           y: {
-            min: -Math.max(...getChartReadyData(this.props.params, this.props.data).map((o) => { return o.prop; })) * 0.4,
+            min: -Math.max(...getChartReadyData(params, data).map((o) => { return o.prop; })) * 0.4,
             // max: 100,
             show: false,
           },
@@ -128,39 +126,50 @@ class Chart extends Component {
 
           },
         },
-        // tooltip: {
-        //   contents(d, defaultTitleFormat, defaultValueFormat, color) {
-        //     const { index } = d[0];
-        //     const partOne = `<div style="text-transform:none;max-width:200px;text-align:left; background-color: rgba(255,255,255,0.8); padding:5px;border: 1px solid #ccc;">
-        //         <b>${getCategoryLabels(localeValue)[data[index].name]}:</b>  ${numeral(data[index].total).format('0,0')} (${data[index].prop}%) `;
-        //     const partTwo = '';
-        //
-        //     const finalToolTip = partOne + partTwo;
-        //     return finalToolTip;
-        //   },
-        // },
+        tooltip: {
+          contents(d, defaultTitleFormat, defaultValueFormat, color) {
+            // const { index } = d[0];
+            // const partOne = `<div style="text-transform:none;max-width:200px;text-align:left; background-color: rgba(255,255,255,0.8); padding:5px;border: 1px solid #ccc;">
+            // <b>${getCategoryLabels(localeValue)[data[index].name]}:</b>  ${numeral(data[index].total).format('0,0')} (${data[index].prop}%) `;
+            // const partTwo = '';
+            //
+            // const finalToolTip = partOne + partTwo;
+            return null;
+          },
+        },
       });
     }
   }
 
 
   render() {
-    const { title } = this.props;
-    if (this.props.data) {
-      const height = `${4.5 * this.props.data.length}vh`;
+    const { title, footnote, data } = this.props;
+    if (data) {
+      const height = `${4.5 * data.length}vh`;
       // console.log(height);
 
       return (
         <div style={{ padding: '10px', backgroundColor: '#ececec' }}>
-          <div style={{ marginLeft: '5px', paddingBottom: '10px', fontSize: '1.3rem' }}><b>{title}</b></div>
+          <div style={{ marginLeft: '5px', paddingBottom: '10px', fontSize: '1.3rem' }}>
+            <b>
+              {title}
+            </b>
+          </div>
 
           <div style={{ backgroundColor: '#fff', padding: '10px' }}>
 
             <div
         ref={node => this.node = node} //eslint-disable-line
-              className={'horizontal-bar-en'}
+              className="horizontal-bar-en"
               style={{ minHeight: height, width: '100%' }}
             />
+          </div>
+
+          <div style={{
+            marginLeft: '5px', paddingBottom: '5px', paddingTop: '10px', color: '#666',
+          }}
+          >
+            {footnote}
           </div>
         </div>
       );
@@ -169,12 +178,6 @@ class Chart extends Component {
     }
   }
 }
-
-const mapStateToProps = state => (
-  {
-    locale: state.locale,
-  }
-);
 
 
 export default Chart;

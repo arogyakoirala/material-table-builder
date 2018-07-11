@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'; //eslint-disable-line
 import {
   Table,
   TableBody,
@@ -14,7 +14,6 @@ class RenderTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
-
     };
 
     this.getColumnHeaders = this.getColumnHeaders.bind(this);
@@ -25,36 +24,56 @@ class RenderTable extends Component {
   }
 
   render() {
-    const { data, title, updating } = this.props;
+    const {
+      data, title, updating, footnote,
+    } = this.props;
 
     const columnHeaders = this.getColumnHeaders(data);
 
-    if (updating === true) {
+    if (updating) {
       return <div />;
     } else {
       return (
         <div style={{ backgroundColor: '#ececec', padding: '10px' }}>
-          <div style={{ marginLeft: '5px', paddingBottom: '10px', fontSize: '1.3rem' }}><b>{title}</b></div>
+          <div style={{ marginLeft: '5px', paddingBottom: '10px', fontSize: '1.3rem' }}>
+            <b>
+              {title}
+            </b>
+          </div>
           <Table selectable={false}>
             <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
               <TableRow>
                 {columnHeaders.map((item) => {
-              return <TableHeaderColumn key={Math.random()}>{item}</TableHeaderColumn>;
-              })}
+                  return (
+                    <TableHeaderColumn key={Math.random()}>
+                      {item}
+                    </TableHeaderColumn>
+                  );
+                })}
               </TableRow>
             </TableHeader>
             <TableBody displayRowCheckbox={false}>
               {data.map((item) => {
-              return (
-                <TableRow key={Math.random() * 10}>
-                  {columnHeaders.map((columnName) => {
-                  return <TableRowColumn key={Math.random() * 100}>{item[columnName]}</TableRowColumn>;
-                })}
-                </TableRow>
-              );
-            })}
+                return (
+                  <TableRow key={Math.random() * 10}>
+                    {columnHeaders.map((columnName) => {
+                      return (
+                        <TableRowColumn key={Math.random() * 100}>
+                          {item[columnName]}
+                        </TableRowColumn>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
+          <div style={{
+            marginLeft: '5px', paddingBottom: '5px', paddingTop: '10px', color: '#666',
+          }}
+          >
+            {footnote}
+          </div>
         </div>
       );
     }
