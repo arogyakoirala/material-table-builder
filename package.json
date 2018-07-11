@@ -1,6 +1,6 @@
 {
   "name": "material-table-builder",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A simple utitlity to collect data for tables and bar charts. This tool was developed specifically for KLL's OLGDS project, where municipality officers wanted a way to simply input data for tables and/or graphs to be displayed on their website.",
   "main": "dist/index.js",
   "scripts": {
