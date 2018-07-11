@@ -1,0 +1,40 @@
+.horizontal-bar-en text[style].c3-text {
+  fill: black !important;
+  font-size: 0.8rem;
+  margin-right: 200px;
+  font-weight: bold;
+  font-family: 'Noto Sans', sans-serif;
+}
+.horizontal-bar-en .c3-grid line {
+  stroke: #e4e4e4;
+}
+.horizontal-bar-en .c3-xgrid, .horizontal-bar-en .c3-ygrid {
+  stroke-dasharray: 0;
+}
+.horizontal-bar-en .c3-xgrid-line line {
+  stroke-width: 0;
+}
+.horizontal-bar-en .c3-xgrid-line text {
+  fill: black;
+  transform: translate(0px, 10px);
+  -ms-transform: translate(0px, 10px);
+  /* IE 9 */
+  -webkit-transform: translate(0px, 10px);
+  /* Safari and Chrome */
+  -o-transform: translate(0px, 10px);
+  /* Opera */
+  -moz-transform: translate(0px, 10px);
+  /* Firefox */
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 1.1rem;
+}
+.horizontal-bar-en .c3-grid:nth-child(odd) line {
+  stroke: #ececec;
+}
+.horizontal-bar-en .c3-axis-x text {
+  visibility: hidden;
+}
+.horizontal-bar-en .c3-event-rect:nth-child(even) {
+  fill: black;
+  fill-opacity: 0.03;
+}

@@ -1,0 +1,49 @@
+.editable-table .react-grid-Header {
+  display: none !important;
+}
+.editable-table .react-grid-Viewport {
+  top: 0px !important;
+}
+.editable-table .react-grid-Row:first-child {
+  font-weight: 600;
+}
+.editable-table .react-grid-Row:first-child .react-grid-Cell {
+  background-color: #f2f2f2 !important;
+}
+.editable-table .react-grid-Canvas {
+  overflow: auto !important;
+  width: 100% !important;
+  margin-top: 10px;
+}
+.editable-table .react-grid-Cell:focus .drag-handle {
+  background: #da7462 !important;
+}
+.editable-table .react-grid-Cell:focus {
+  outline: 2px solid #da7462 !important;
+  outline-offset: -2px;
+}
+.editable-table .react-grid-Cell:hover:focus .drag-handle {
+  border: 1px solid #da7462 !important;
+}
+.editable-table .react-grid-Cell.editing input {
+  border: 2px #da7462 solid !important;
+  border-radius: 0px !important;
+}
+.editable-table .react-grid-Main {
+  outline: 0px solid #ccc !important;
+}
+.editable-table .react-grid-Grid {
+  border: 0px solid #ccc !important;
+}
+.editable-table .react-grid-Cell:first-child {
+  border-left: 1px solid #ddd;
+}
+.editable-table .react-grid-Row {
+  border-top: 1px solid #ddd;
+}
+.editable-table .cls-2 {
+  fill: none;
+}
+.editable-table .cls-3 {
+  fill: #707070;
+}
