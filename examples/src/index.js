@@ -175,7 +175,7 @@ Working Example
 
           <p>
             {' '}
-The package also comes with two additional helpar components, viz.
+The package also comes with two additional helper components, viz.
             {' '}
             <code>
  Chart
