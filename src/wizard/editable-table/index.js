@@ -242,7 +242,7 @@ class EditableTable extends Component {
           newRows.push(this.state.rows[i]); // eslint-disable-line
         }
       }
-      this.setState({ rows: newRows });
+      this.state.rows = newRows;
     }
     // console.log('rows', this.state.rows);
     const returnRows = [];
@@ -250,6 +250,7 @@ class EditableTable extends Component {
     for (i = 1; i < this.state.rows.length; i += 1) { // eslint-disable-line
       returnRows.push(this.state.rows[i]); // eslint-disable-line
     }
+    console.log(returnRows);
     onChangeData(returnRows);
   }
 
