@@ -4,6 +4,7 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import SvgIcon from 'material-ui/SvgIcon';
+import Snackbar from 'material-ui/Snackbar';
 import { generateRows, generateColumns } from './utils';
 import './styles.css'; //eslint-disable-line
 
@@ -41,6 +42,7 @@ class EditableTable extends Component {
       rows: generateRows(props.data),
       columns: generateColumns(props.data),
       updating: false,
+      deleting: false,
       newColumnName: '',
       tableHeader: props.title,
       tableFootNote: props.footnote,
@@ -56,6 +58,11 @@ class EditableTable extends Component {
     this.onChangeColumnName = this.onChangeColumnName.bind(this);
     this.onChangeTableHeader = this.onChangeTableHeader.bind(this);
     this.onChangeTableFootnote = this.onChangeTableFootnote.bind(this);
+    this.deleteRow = this.deleteRow.bind(this);
+    this.deleteColumn = this.deleteColumn.bind(this);
+    this.doneDeleting = this.doneDeleting.bind(this);
+    this.deleteTableData = this.deleteTableData.bind(this);
+    this.checkAndUpdateColHead = this.checkAndUpdateColHead.bind(this);
   }
 
   getRow(i) {
@@ -73,7 +80,7 @@ class EditableTable extends Component {
     const { onChangeData } = this.props;
 
     const newObject = { ...fromRowData, ...updated };
-    const rowsCopy = rows;
+    let rowsCopy = rows;
     rowsCopy[fromRow] = newObject;
     let array = [];
     if (fromRow === 0) {
@@ -103,6 +110,9 @@ class EditableTable extends Component {
       // console.log('newRows', rowsCopy);
     });
 
+    rowsCopy = this.checkAndUpdateColHead(rowsCopy);
+
+    // console.log(rowsCopy);
     onChangeData(rowsCopy.splice(1, rowsCopy.length));
   }
 
@@ -162,6 +172,81 @@ class EditableTable extends Component {
         rows: currentRows,
       }, onChangeData(currentRows));
     }, 100);
+  }
+
+  checkAndUpdateColHead(obj) { // eslint-disable-line
+    let targetedHead = '';
+    let changedValue = '';
+    const newArray = [];
+    let newObject = {};
+    Object.keys(obj[0]).map((colHead) => { // eslint-disable-line
+      if (colHead !== obj[0][colHead]) {
+        targetedHead = colHead;
+        changedValue = obj[0][colHead];
+      }
+    });
+    if (targetedHead !== '' && changedValue !== '') {
+      obj.map((unitObj) => { // eslint-disable-line
+        newObject = {};
+        Object.keys(unitObj).map((key) => { // eslint-disable-line
+          if (key === targetedHead) {
+            newObject[changedValue] = unitObj[targetedHead];
+          } else {
+            newObject[key] = unitObj[key];
+          }
+        });
+        newArray[newArray.length] = newObject;
+      });
+    }
+    return newArray;
+  }
+
+  deleteRow() {
+    this.setState({ deleting: 'rows' });
+  }
+
+  deleteColumn() {
+    this.setState({ deleting: 'columns' });
+  }
+
+  doneDeleting() {
+    this.setState({ deleting: false });
+  }
+
+  deleteTableData(rowOrCol, v) { // eslint-disable-line
+    const { onChangeData } = this.props;
+
+    if (rowOrCol === 'columns' && v.initialKeyCode === 'Delete') {
+      const newCols = [];
+      let i = 0;
+      for (i = 0; i < this.state.columns.length; i += 1) { // eslint-disable-line
+        if (i !== v.idx) {
+          newCols.push(this.state.columns[i]); // eslint-disable-line
+        }
+      }
+      this.setState({ columns: newCols });
+
+      let j = 0;
+      for (j = 0; j < this.state.rows.length; j += 1) { // eslint-disable-line
+        delete this.state.rows[j]['']; // eslint-disable-line
+      }
+    } else if (rowOrCol === 'rows' && v.initialKeyCode === 'Delete') {
+      const newRows = [];
+      let i = 0;
+      for (i = 0; i < this.state.rows.length; i += 1) { // eslint-disable-line
+        if (i !== v.rowIdx) {
+          newRows.push(this.state.rows[i]); // eslint-disable-line
+        }
+      }
+      this.setState({ rows: newRows });
+    }
+    // console.log('rows', this.state.rows);
+    const returnRows = [];
+    let i = 1;
+    for (i = 1; i < this.state.rows.length; i += 1) { // eslint-disable-line
+      returnRows.push(this.state.rows[i]); // eslint-disable-line
+    }
+    onChangeData(returnRows);
   }
 
   onSave(newColumnName) {
@@ -226,13 +311,29 @@ class EditableTable extends Component {
 
     return (
       <div className="editable-table m-3">
+
+        <Snackbar
+          open={this.state.deleting === 'columns' || this.state.deleting === 'rows'}
+          message={(
+            <div>
+              {`Select the ${this.state.deleting === 'columns' ? 'column head' : 'row'}. Press Delete & Then Enter.`}
+              <FlatButton labelStyle={{ color: '#FFF' }} className="float-right mr-1 ml-3 mt-2" label="Done Deleting" onClick={this.doneDeleting} />
+            </div>
+          )}
+          autoHideDuration={4000}
+          onRequestClose={() => { }}
+        />
+
         <TextField fullWidth name="tableTitle" floatingLabelText="Enter table title" value={tableHeader} onChange={this.onChangeTableHeader} />
         <br />
         <br />
 
         <small style={{ color: 'rgba(0,0,0,0.3)' }}>
-Enter table data
+          Enter table data
         </small>
+
+        <FlatButton icon={<AddColumnIcon />} primary className="float-right mr-1 " label="Delete Column" onClick={this.deleteColumn} />
+        <FlatButton icon={<AddRowIcon />} primary className="float-right mr-1 " label="Delete Row" onClick={this.deleteRow} />
         <FlatButton icon={<AddColumnIcon />} primary className="float-right mr-1 " label="Add Column" onClick={this.onOpenDialog} />
         <FlatButton icon={<AddRowIcon />} primary className="float-right mr-1 " label="Add Row" onClick={this.addRow} />
 
@@ -241,6 +342,9 @@ Enter table data
           && (
           <div>
             <ReactDataGrid
+              onCellDeSelected={(v) => {
+                if (this.state.deleting) { this.deleteTableData(this.state.deleting, v); } // eslint-disable-line
+              }}
               columns={columns}
               enableCellSelect
               rowGetter={this.getRow}
