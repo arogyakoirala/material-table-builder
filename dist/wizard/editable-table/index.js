@@ -32,6 +32,10 @@ var _SvgIcon = require('material-ui/SvgIcon');
 
 var _SvgIcon2 = _interopRequireDefault(_SvgIcon);
 
+var _Snackbar = require('material-ui/Snackbar');
+
+var _Snackbar2 = _interopRequireDefault(_Snackbar);
+
 var _utils = require('./utils');
 
 require('./styles.css');
@@ -86,6 +90,7 @@ var EditableTable = function (_Component) {
       rows: (0, _utils.generateRows)(props.data),
       columns: (0, _utils.generateColumns)(props.data),
       updating: false,
+      deleting: false,
       newColumnName: '',
       tableHeader: props.title,
       tableFootNote: props.footnote
@@ -101,6 +106,11 @@ var EditableTable = function (_Component) {
     _this.onChangeColumnName = _this.onChangeColumnName.bind(_this);
     _this.onChangeTableHeader = _this.onChangeTableHeader.bind(_this);
     _this.onChangeTableFootnote = _this.onChangeTableFootnote.bind(_this);
+    _this.deleteRow = _this.deleteRow.bind(_this);
+    _this.deleteColumn = _this.deleteColumn.bind(_this);
+    _this.doneDeleting = _this.doneDeleting.bind(_this);
+    _this.deleteTableData = _this.deleteTableData.bind(_this);
+    _this.checkAndUpdateColHead = _this.checkAndUpdateColHead.bind(_this);
     return _this;
   }
 
@@ -159,6 +169,9 @@ var EditableTable = function (_Component) {
         // console.log('newRows', rowsCopy);
       });
 
+      rowsCopy = this.checkAndUpdateColHead(rowsCopy);
+
+      // console.log(rowsCopy);
       onChangeData(rowsCopy.splice(1, rowsCopy.length));
     }
   }, {
@@ -228,6 +241,101 @@ var EditableTable = function (_Component) {
           rows: currentRows
         }, onChangeData(currentRows));
       }, 100);
+    }
+  }, {
+    key: 'checkAndUpdateColHead',
+    value: function checkAndUpdateColHead(obj) {
+      // eslint-disable-line
+      var targetedHead = '';
+      var changedValue = '';
+      var newArray = [];
+      var newObject = {};
+      Object.keys(obj[0]).map(function (colHead) {
+        // eslint-disable-line
+        if (colHead !== obj[0][colHead]) {
+          targetedHead = colHead;
+          changedValue = obj[0][colHead];
+        }
+      });
+      if (targetedHead !== '' && changedValue !== '') {
+        obj.map(function (unitObj) {
+          // eslint-disable-line
+          newObject = {};
+          Object.keys(unitObj).map(function (key) {
+            // eslint-disable-line
+            if (key === targetedHead) {
+              newObject[changedValue] = unitObj[targetedHead];
+            } else {
+              newObject[key] = unitObj[key];
+            }
+          });
+          newArray[newArray.length] = newObject;
+        });
+      }
+      if (newArray.length > 0) {
+        return newArray;
+      } else {
+        return obj;
+      }
+    }
+  }, {
+    key: 'deleteRow',
+    value: function deleteRow() {
+      this.setState({ deleting: 'rows' });
+    }
+  }, {
+    key: 'deleteColumn',
+    value: function deleteColumn() {
+      this.setState({ deleting: 'columns' });
+    }
+  }, {
+    key: 'doneDeleting',
+    value: function doneDeleting() {
+      this.setState({ deleting: false });
+    }
+  }, {
+    key: 'deleteTableData',
+    value: function deleteTableData(rowOrCol, v) {
+      // eslint-disable-line
+      var onChangeData = this.props.onChangeData;
+
+
+      if (rowOrCol === 'columns' && v.initialKeyCode === 'Delete') {
+        var newCols = [];
+        var _i = 0;
+        for (_i = 0; _i < this.state.columns.length; _i += 1) {
+          // eslint-disable-line
+          if (_i !== v.idx) {
+            newCols.push(this.state.columns[_i]); // eslint-disable-line
+          }
+        }
+        this.setState({ columns: newCols });
+
+        var j = 0;
+        for (j = 0; j < this.state.rows.length; j += 1) {
+          // eslint-disable-line
+          delete this.state.rows[j]['']; // eslint-disable-line
+        }
+      } else if (rowOrCol === 'rows' && v.initialKeyCode === 'Delete') {
+        var newRows = [];
+        var _i2 = 0;
+        for (_i2 = 0; _i2 < this.state.rows.length; _i2 += 1) {
+          // eslint-disable-line
+          if (_i2 !== v.rowIdx) {
+            newRows.push(this.state.rows[_i2]); // eslint-disable-line
+          }
+        }
+        this.state.rows = newRows;
+      }
+      // console.log('rows', this.state.rows);
+      var returnRows = [];
+      var i = 1;
+      for (i = 1; i < this.state.rows.length; i += 1) {
+        // eslint-disable-line
+        returnRows.push(this.state.rows[i]); // eslint-disable-line
+      }
+      console.log(returnRows);
+      onChangeData(returnRows);
     }
   }, {
     key: 'onSave',
@@ -308,6 +416,17 @@ var EditableTable = function (_Component) {
       return _react2.default.createElement(
         'div',
         { className: 'editable-table m-3' },
+        _react2.default.createElement(_Snackbar2.default, {
+          open: this.state.deleting === 'columns' || this.state.deleting === 'rows',
+          message: _react2.default.createElement(
+            'div',
+            null,
+            'Select the ' + (this.state.deleting === 'columns' ? 'column head' : 'row') + '. Press Delete & Then Enter.',
+            _react2.default.createElement(_FlatButton2.default, { labelStyle: { color: '#FFF' }, className: 'float-right mr-1 ml-3 mt-2', label: 'Done Deleting', onClick: this.doneDeleting })
+          ),
+          autoHideDuration: 4000,
+          onRequestClose: function onRequestClose() {}
+        }),
         _react2.default.createElement(_TextField2.default, { fullWidth: true, name: 'tableTitle', floatingLabelText: 'Enter table title', value: tableHeader, onChange: this.onChangeTableHeader }),
         _react2.default.createElement('br', null),
         _react2.default.createElement('br', null),
@@ -316,12 +435,19 @@ var EditableTable = function (_Component) {
           { style: { color: 'rgba(0,0,0,0.3)' } },
           'Enter table data'
         ),
+        _react2.default.createElement(_FlatButton2.default, { icon: _react2.default.createElement(AddColumnIcon, null), primary: true, className: 'float-right mr-1 ', label: 'Delete Column', onClick: this.deleteColumn }),
+        _react2.default.createElement(_FlatButton2.default, { icon: _react2.default.createElement(AddRowIcon, null), primary: true, className: 'float-right mr-1 ', label: 'Delete Row', onClick: this.deleteRow }),
         _react2.default.createElement(_FlatButton2.default, { icon: _react2.default.createElement(AddColumnIcon, null), primary: true, className: 'float-right mr-1 ', label: 'Add Column', onClick: this.onOpenDialog }),
         _react2.default.createElement(_FlatButton2.default, { icon: _react2.default.createElement(AddRowIcon, null), primary: true, className: 'float-right mr-1 ', label: 'Add Row', onClick: this.addRow }),
         !updating && _react2.default.createElement(
           'div',
           null,
           _react2.default.createElement(_reactDataGrid2.default, {
+            onCellDeSelected: function onCellDeSelected(v) {
+              if (_this4.state.deleting) {
+                _this4.deleteTableData(_this4.state.deleting, v);
+              } // eslint-disable-line
+            },
             columns: columns,
             enableCellSelect: true,
             rowGetter: this.getRow,
