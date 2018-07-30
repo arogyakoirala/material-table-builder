@@ -198,7 +198,11 @@ class EditableTable extends Component {
         newArray[newArray.length] = newObject;
       });
     }
-    return newArray;
+    if (newArray.length > 0) {
+      return newArray;
+    } else {
+      return obj;
+    }
   }
 
   deleteRow() {
